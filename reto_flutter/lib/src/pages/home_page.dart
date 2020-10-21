@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:reto_flutter/src/models/ComidaModel.dart';
+import 'package:reto_flutter/src/providers/comidas_provider.dart';
 
 class HomePage extends StatelessWidget {
+    final comidasProvider = new ComidasProvider();
   @override
   Widget build(BuildContext context) {
+  
+
     return Scaffold(
       
       body: _crearListadoComidas()                  
@@ -11,16 +16,16 @@ class HomePage extends StatelessWidget {
 
 
   Widget _crearListadoComidas(){
-    return SafeArea(
-          child: Wrap(        
-        direction: Axis.horizontal,
-        children: [       
-        _crearComida(),
-        _crearComida(),
-        _crearComida(),
-        _crearComida(),      
-        ],           
-      ),
+    return FutureBuilder(
+      future: comidasProvider.cargarComidas(),      
+      builder: (BuildContext context, AsyncSnapshot<List<ComidaModel>> snapshot) {
+        if(snapshot.hasData){
+          return Container();
+        }else{
+          return Center( child: CircularProgressIndicator());
+        }
+        
+      },
     );
     
   }
