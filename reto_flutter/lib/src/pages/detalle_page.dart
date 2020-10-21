@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:reto_flutter/src/models/ComidaModel.dart';
+import 'package:reto_flutter/src/providers/comidas_provider.dart';
 
 class DetallePage extends StatefulWidget {
   @override
@@ -7,18 +8,24 @@ class DetallePage extends StatefulWidget {
 }
 
 class _DetallePageState extends State<DetallePage> {
-
-  ComidaModel comida= new ComidaModel();
+  final comidasProvider=new ComidasProvider();
+  ComidaModel comida=new ComidaModel();
+  
+  
 
   @override
   Widget build(BuildContext context) {
+    ComidaModel comidaData= ModalRoute.of(context).settings.arguments;
+    if(comidaData!=null){
+      comida=comidaData;
+    }
     return Scaffold(      
       appBar: AppBar(
-        title: Text('Sourdough French Toast', textAlign: TextAlign.center,
+        title: Text(comida.name, textAlign: TextAlign.center,
          style: TextStyle(fontSize: 20.0)),
         backgroundColor: Colors.grey[800],  
         toolbarHeight: 100.0,        
-        leading: Icon(Icons.chevron_left),     
+        leading: GestureDetector(child: Icon(Icons.chevron_left), onTap: () => Navigator.pop(context),),     
         actions: [
           IconButton(
             icon: Icon(Icons.local_dining),
@@ -34,7 +41,7 @@ class _DetallePageState extends State<DetallePage> {
               _verImagen(),
               _mostrarRating(),
               _mostrarDescripcion(),
-              _mostrarEtiquetas(),
+              //_crearEtiquetas(),
               _mostrarHorario(),
               _mostrarSugerencias(),
               _mostrarNuevo(),
@@ -48,7 +55,7 @@ class _DetallePageState extends State<DetallePage> {
 
 Widget _verImagen(){
   return FadeInImage(
-    image: AssetImage('assets/no-image.png'),
+    image: NetworkImage(comida.imageUrl),
     placeholder: AssetImage('assets/loading.gif'),
     fadeInDuration: Duration(seconds: 5),
   );
@@ -60,20 +67,39 @@ Widget _mostrarDescripcion(){
   return Padding(
      padding: EdgeInsets.symmetric(horizontal:20.0),
     child: Container(     
-      child: Text('Our classic sourdough bread soaked in delicious vainilla batter and toasted to perfection. Butter, syrup and cinnamon included!'),
+      child: Text(comida.description),
     ),
   );
 }
-Widget _mostrarEtiquetas(){
-  return Container( 
+
+
+Widget _mostrarEtiquetas( String tag ){
+  if(tag!=null)
+  {
+    return Container(
     margin: EdgeInsets.all(10.0) ,
-    child: Text('MAIN DISH'),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(10),
-       color: Colors.blueAccent,
-    ),
+ child:
+     
+      Text(tag),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+         color: Colors.blueAccent,
+      ),
   );
+  }      
 }
+
+Widget _crearEtiquetas(){  
+  if(comida.tags!=null) {
+
+      comida.tags.forEach((tag){
+    return Container(
+      child: _mostrarEtiquetas(tag)
+    );
+    });  
+}
+}
+
 Widget _mostrarHorario(){
   return Container();
 }

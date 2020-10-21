@@ -20,7 +20,13 @@ class HomePage extends StatelessWidget {
       future: comidasProvider.cargarComidas(),      
       builder: (BuildContext context, AsyncSnapshot<List<ComidaModel>> snapshot) {
         if(snapshot.hasData){
-          return Container();
+          final comidas= snapshot.data;
+          return 
+                ListView.builder(
+              itemCount: comidas.length,
+              itemBuilder: (context, i)=>_crearComida(context, comidas[i]),
+            );
+                        
         }else{
           return Center( child: CircularProgressIndicator());
         }
@@ -31,26 +37,32 @@ class HomePage extends StatelessWidget {
   }
 
 
-  Widget _crearComida(){
-     return Container(
-      child: Column(
-        children: [
-        Container(
-          child: FadeInImage(
-          image: AssetImage('assets/no-image.png'),
-          height: 100.0,
-          placeholder: AssetImage('assets/loading.gif'),
-          fadeInDuration: Duration(seconds: 5),  
-          fit: BoxFit.cover,      
+  Widget _crearComida(BuildContext context, ComidaModel comida){
+     return GestureDetector(
+            child: Container(       
+        child: Column(
+          children: [
+            (comida.imageUrl==null)
+            ? Image(image: AssetImage('assets/no-image.png'))
+            :
+          Container(
+            child: FadeInImage(
+            image:NetworkImage(comida.imageUrl),
+            height: 100.0,
+            placeholder: AssetImage('assets/loading.gif'),
+            fadeInDuration: Duration(seconds: 5),  
+            fit: BoxFit.cover,      
+            ),
+          decoration: BoxDecoration( 
+          borderRadius: BorderRadius.circular(50.0)
           ),
-        decoration: BoxDecoration( 
-        borderRadius: BorderRadius.circular(50.0)
-        ),
-        ),        
-        Text('Spagetti Sauce w/Met')
-      ],
-      ),      
-    );
+          ),        
+          Text(comida.name)        
+        ],      
+        ),            
+    ),
+    onTap: ()=> Navigator.pushNamed(context, 'detalle', arguments: comida ),
+     );
   }
 
 }
