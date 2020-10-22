@@ -22,7 +22,7 @@ class _DetallePageState extends State<DetallePage> {
 
   @override
   Widget build(BuildContext context) {
-    final screensize = MediaQuery.of(context).size;
+  
     ComidaModel comidaData = ModalRoute.of(context).settings.arguments;
     if (comidaData != null) {
       comida = comidaData;
@@ -54,13 +54,7 @@ class _DetallePageState extends State<DetallePage> {
               _verRating(),
               _showTags(),
               _showHour(),
-              Wrap(
-                direction: Axis.horizontal,
-                alignment: WrapAlignment.start,
-                children: [
-                  //_createSuggestion(),
-                ],
-              ),
+             // _createSuggestion(context, comida.suggestions),
             ],
           ),
         ),
@@ -178,16 +172,54 @@ class _DetallePageState extends State<DetallePage> {
       ]),
     );
   }
- Widget _createSuggestion() {
-   
-    comida.suggestions.forEach((suggestion) {
-      return _create(suggestion);      
-    }); 
-      
-    
+ Widget _createSuggestion(BuildContext context, List<dynamic> suggestions) {
+   if(suggestions!=null)
+   {
+     return GridView.builder(
+            itemCount: suggestions.length,
+            gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 1,
+            ),
+            itemBuilder: (context, i) => _create(context, suggestions[i]),
+          );
+   }
+   else{
+     return CircularProgressIndicator();
+   }      
   }
 
-  Widget _create(Suggestion suggestion){
-return Text(suggestion.name);
+  Widget _create(BuildContext context,Suggestion suggestion){
+    final screensize = MediaQuery.of(context).size;
+
+    return Column(
+      children: [
+        GestureDetector(
+          child: Container(
+            width: screensize.width * 0.40,
+            margin: EdgeInsets.all(screensize.width * 0.05),
+            child: Column(
+              children: [
+                (comida.imageUrl == null)
+                    ? Image(image: AssetImage('assets/no-image.png'))
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(20.0),
+                        child: FadeInImage(
+                          image: NetworkImage(suggestion.imageUrl),
+                          placeholder: AssetImage('assets/loading.gif'),
+                          fadeInDuration: Duration(seconds: 5),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                Text(suggestion.name,
+                    style: TextStyle(fontSize: 15.0, color: Colors.grey[400]))
+              ],
+            ),
+          ),
+          onTap: () =>
+              Navigator.pushNamed(context, 'detalle', arguments: comida),
+        ),
+      ],
+    );
   }
 }

@@ -3,67 +3,71 @@ import 'package:reto_flutter/src/models/ComidaModel.dart';
 import 'package:reto_flutter/src/providers/comidas_provider.dart';
 
 class HomePage extends StatelessWidget {
-    final comidasProvider = new ComidasProvider();
+  final comidasProvider = new ComidasProvider();
   @override
   Widget build(BuildContext context) {
-  
-
     return Scaffold(
-      
-      body: _crearListadoComidas()                  
-    );    
+      body: SafeArea(
+        child: Container(
+          color: Colors.grey[800],
+          child: _crearListadoComidas(),
+        ),
+      ),
+    );
   }
 
-
-  Widget _crearListadoComidas(){
+  Widget _crearListadoComidas() {
     return FutureBuilder(
-      future: comidasProvider.cargarComidas(),      
-      builder: (BuildContext context, AsyncSnapshot<List<ComidaModel>> snapshot) {
-        if(snapshot.hasData){
-          final comidas= snapshot.data;
-          return 
-                ListView.builder(
-                  
-              itemCount: comidas.length,
-              itemBuilder: (context, i)=>_crearComida(context, comidas[i]),
-            );
-                        
-        }else{
-          return Center( child: CircularProgressIndicator());
+      future: comidasProvider.cargarComidas(),
+      builder:
+          (BuildContext context, AsyncSnapshot<List<ComidaModel>> snapshot) {
+        if (snapshot.hasData) {
+          final comidas = snapshot.data;
+          return GridView.builder(
+            itemCount: comidas.length,
+            gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 1,
+            ),
+            itemBuilder: (context, i) => _crearComida(context, comidas[i]),
+          );
+        } else {
+          return Center(child: CircularProgressIndicator());
         }
-        
       },
     );
-    
   }
 
-
-  Widget _crearComida(BuildContext context, ComidaModel comida){
-     return GestureDetector(
-            child: Container(       
-        child: Column(
-          children: [
-            (comida.imageUrl==null)
-            ? Image(image: AssetImage('assets/no-image.png'))
-            :
-          Container(
-            child: FadeInImage(
-            image:NetworkImage(comida.imageUrl),
-            height: 100.0,
-            placeholder: AssetImage('assets/loading.gif'),
-            fadeInDuration: Duration(seconds: 5),  
-            fit: BoxFit.cover,      
+  Column _crearComida(BuildContext context, ComidaModel comida) {
+    final screensize = MediaQuery.of(context).size;
+    return Column(
+      children: [
+        GestureDetector(
+          child: Container(
+            width: screensize.width * 0.40,
+            margin: EdgeInsets.all(screensize.width * 0.05),
+            child: Column(
+              children: [
+                (comida.imageUrl == null)
+                    ? Image(image: AssetImage('assets/no-image.png'))
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(20.0),
+                        child: FadeInImage(
+                          image: NetworkImage(comida.imageUrl),
+                          placeholder: AssetImage('assets/loading.gif'),
+                          fadeInDuration: Duration(seconds: 5),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                Text(comida.name,
+                    style: TextStyle(fontSize: 15.0, color: Colors.grey[400]))
+              ],
             ),
-          decoration: BoxDecoration( 
-          borderRadius: BorderRadius.circular(50.0)
           ),
-          ),        
-          Text(comida.name)        
-        ],      
-        ),            
-    ),
-    onTap: ()=> Navigator.pushNamed(context, 'detalle', arguments: comida ),
-     );
+          onTap: () =>
+              Navigator.pushNamed(context, 'detalle', arguments: comida),
+        ),
+      ],
+    );
   }
-
 }
