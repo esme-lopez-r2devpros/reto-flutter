@@ -46,26 +46,19 @@ class _DetallePageState extends State<DetallePage> {
       ),
       body: SingleChildScrollView(
         child: Container(
+          height: 2000.0,
           color: Colors.grey[800],
           child: Column(
             children: [
               _verImagen(),
               _verRating(),
-              Wrap(           
-                direction: Axis.vertical,
-                spacing: 10.0,
-                runSpacing:20.0,
+              _showTags(),
+              _showHour(),
+              Wrap(
+                direction: Axis.horizontal,
+                alignment: WrapAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      _crearTag(),
-                      _crearTag(),
-                      _crearTag(),
-                      _crearTag(),
-                      _crearTag(),
-                      _crearTag(),
-                    ],
-                  ),
+                  //_createSuggestion(),
                 ],
               ),
             ],
@@ -139,12 +132,62 @@ class _DetallePageState extends State<DetallePage> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(20.0),
       child: Container(
+        padding: EdgeInsets.all(8.0),
         color: Colors.blue[300],
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text('MAIN DISH'),
-        ),
+        child: Text('MAIN DISH'),
       ),
     );
+  }
+
+  Widget _showTags() {
+    return Wrap(
+      direction: Axis.horizontal,
+      alignment: WrapAlignment.start,
+      spacing: 0.0,
+      runSpacing: 5.0,
+      children: [
+        _crearTag(),
+        _crearTag(),
+        _crearTag(),
+        _crearTag(),
+        _crearTag(),
+        _crearTag(),
+        _crearTag(),
+        _crearTag(),
+      ],
+    );
+  }
+
+  Widget _showHour() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+      child: Row(children: [
+        Icon(Icons.access_time, color: Colors.grey[300], size: 30.0),
+        Column(
+          children: [
+            Text(
+              '${comida.dateStart.hour.toString()}- ${comida.dateEnd.hour.toString()}',
+              style: TextStyle(fontSize: 16.0, color: Colors.grey[300]),
+            ),
+            Text(
+              'Served during breakfast hours only',
+              style: TextStyle(fontSize: 14.0, color: Colors.grey[500]),
+            ),
+          ],
+        ),
+      ]),
+    );
+  }
+ Widget _createSuggestion() {
+   
+    comida.suggestions.forEach((suggestion) {
+      return _create(suggestion);      
+    }); 
+      
+    
+  }
+
+  Widget _create(Suggestion suggestion){
+return Text(suggestion.name);
   }
 }
