@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:reto_flutter/src/models/ComidaModel.dart';
 import 'package:reto_flutter/src/providers/comidas_provider.dart';
+import 'package:reto_flutter/src/widget/suggestions_widget.dart';
 
 class DetallePage extends StatefulWidget {
   @override
@@ -34,7 +35,7 @@ class _DetallePageState extends State<DetallePage> {
         title: Text(comida.name,
             textAlign: TextAlign.center, style: TextStyle(fontSize: 20.0)),
         backgroundColor: Colors.grey[800],
-        toolbarHeight: 100.0,
+        toolbarHeight: 90.0,
         leading: GestureDetector(
           child: Icon(Icons.chevron_left),
           onTap: () => Navigator.pop(context),
@@ -46,24 +47,39 @@ class _DetallePageState extends State<DetallePage> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          color: Colors.grey[800],
-          child: Column(
+      body: 
+      SingleChildScrollView(
+        child:
+         Container(
+         height: 1200.0,
+         
+        color: Colors.grey[800],
+        child: Column(
             children: [
               _verImagen(),
               _verRating(),
-              _showTags(context, comida.tags),
-              _showHour(),
-              //_createSuggestion(context, comida.suggestions),
-              _isNew(context, comida)
-            ],
-          ),
-        ),
-      ),
+              SizedBox(height: 50.0, child: _showTags(context, comida.tags)),               
+              _showHour(),   
+              _isNew(context, comida),
+              _etiqueta(),              
+                 Flexible( child: _createSuggestion(context, comida)) ,                                                                                     
+           ],
+         ),
+       ),
+       ),
     );
   }
 
+  Widget _etiqueta(){
+    return Container( width: double.infinity, padding: EdgeInsets.symmetric(horizontal: 20.0), child: Text("Goes well with...", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[400], fontSize: 18.0, ), ));
+  }
+
+Widget _createSuggestion(BuildContext contextp , ComidaModel comidap){
+
+ return  
+SuggestionWidget(context: contextp, comida: comidap,);           
+ //SuggestionWidget(context: contextp ,comida:comidap);
+}
   Widget _verImagen() {
     return Container(
       width: double.infinity,
@@ -77,7 +93,7 @@ class _DetallePageState extends State<DetallePage> {
   }
 
   Widget _verRating() {
-    return Container(
+    return Container(      
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
       child: Column(
         children: [
@@ -124,33 +140,58 @@ class _DetallePageState extends State<DetallePage> {
     );
   }
 
-  Widget _crearTag() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20.0),
-      child: Container(
-        padding: EdgeInsets.all(8.0),
-        color: Colors.blue[300],
-        child: Text('MAIN DISH' , style: TextStyle(color: Colors.grey[300]),),
-      ),
+  List<Widget> _crearTag(BuildContext context, List<String> tags) {
+    return tags.map((element) {
+      return Container(
+      child: 
+        ClipRRect(
+          borderRadius: BorderRadius.circular(20.0),
+          child: Container( 
+           // margin: EdgeInsets.symmetric(horizontal:2.0),           
+            padding: EdgeInsets.all(14.0),
+            color: Colors.blue[300],
+            child:               
+                Text(element, style: TextStyle(color: Colors.grey[300]),),                                        
+          ),
+        ),
+      
     );
+    }).toList();
+    
   }
 
   Widget _showTags(BuildContext context, List<String> tags) {
-    return Wrap(
-      direction: Axis.horizontal,
-      alignment: WrapAlignment.start,
-      spacing: 0.0,
-      runSpacing: 5.0,
-      children: [
-       
-      ],
+   
+    return Container(
+      
+          child: Wrap(
+        direction: Axis.horizontal,
+        alignment: WrapAlignment.start,
+        spacing: 0.0,
+        runSpacing: 5.0,              
+        children: 
+        _crearTag(context, tags),
+        
+        
+        ),
     );
+
+     /* return GridView.builder(
+            itemCount: tags.length,
+            gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 1,
+            ),
+            itemBuilder: (context, i) => _crearTag(context, tags[i]),
+          );*/
+    
   }
 
   Widget _showHour() {
     final formatHourStar = DateFormat.jm().format(comida.dateStart);
     final formatHourEnd = DateFormat.jm().format(comida.dateEnd);    
     return Container(
+      width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
       child: Row(children: [
         Icon(Icons.access_time, color: Colors.grey[300], size: 30.0),
@@ -173,58 +214,7 @@ class _DetallePageState extends State<DetallePage> {
     );
   }
 
-  Widget _createSuggestion(BuildContext context, List<Suggestion> suggestions) {
-    if (suggestions != null) {
-      return Column(
-        children: [
-          GridView.builder(
-            itemCount: suggestions.length,
-            gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 1,
-            ),
-            itemBuilder: (context, i) => _create(context, suggestions[i]),
-          ),
-        ],
-      );
-    } else {
-      return CircularProgressIndicator();
-    }
-  }
 
-  Column _create(BuildContext context, Suggestion suggestion) {
-    final screensize = MediaQuery.of(context).size;
-
-    return Column(
-      children: [
-        GestureDetector(
-          child: Container(
-            width: screensize.width * 0.40,
-            margin: EdgeInsets.all(screensize.width * 0.05),
-            child: Column(
-              children: [
-                (suggestion.imageUrl == null)
-                    ? Image(image: AssetImage('assets/no-image.png'))
-                    : ClipRRect(
-                        borderRadius: BorderRadius.circular(20.0),
-                        child: FadeInImage(
-                          image: NetworkImage(suggestion.imageUrl),
-                          placeholder: AssetImage('assets/loading.gif'),
-                          fadeInDuration: Duration(seconds: 5),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                Text(suggestion.name,
-                    style: TextStyle(fontSize: 15.0, color: Colors.grey[400]))
-              ],
-            ),
-          ),
-          onTap: () =>
-              Navigator.pushNamed(context, 'detalle', arguments: suggestion),
-        ),
-      ],
-    );
-  }
 
   Widget _isNew(BuildContext context, ComidaModel comida) {
     return SwitchListTile(

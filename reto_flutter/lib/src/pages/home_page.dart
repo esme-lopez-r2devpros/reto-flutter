@@ -55,12 +55,12 @@ class HomePage extends StatelessWidget {
                         child: FadeInImage(
                           image: NetworkImage(comida.imageUrl),
                           placeholder: AssetImage('assets/loading.gif'),
-                          fadeInDuration: Duration(seconds: 5),
+                          fadeInDuration: Duration(seconds: 1),
                           fit: BoxFit.cover,
                         ),
                       ),
                 Text(comida.name,
-                    style: TextStyle(fontSize: 15.0, color: Colors.grey[400]))
+                    style: TextStyle(fontSize: 15.0, color: Colors.grey[400]), textAlign: TextAlign.center,)
               ],
             ),
           ),
