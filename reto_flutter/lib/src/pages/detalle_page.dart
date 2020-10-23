@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:reto_flutter/src/models/ComidaModel.dart';
 import 'package:reto_flutter/src/providers/comidas_provider.dart';
 
@@ -20,9 +21,10 @@ class _DetallePageState extends State<DetallePage> {
     fontFamily: 'Arial Nova',
   );
 
+  final styleBody = TextStyle(fontSize: 16.0, color: Colors.grey[300]);
+
   @override
   Widget build(BuildContext context) {
-  
     ComidaModel comidaData = ModalRoute.of(context).settings.arguments;
     if (comidaData != null) {
       comida = comidaData;
@@ -46,15 +48,15 @@ class _DetallePageState extends State<DetallePage> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          height: 2000.0,
           color: Colors.grey[800],
           child: Column(
             children: [
               _verImagen(),
               _verRating(),
-              _showTags(),
+              _showTags(context, comida.tags),
               _showHour(),
-             // _createSuggestion(context, comida.suggestions),
+              //_createSuggestion(context, comida.suggestions),
+              _isNew(context, comida)
             ],
           ),
         ),
@@ -90,7 +92,7 @@ class _DetallePageState extends State<DetallePage> {
                     _crearIconoEstrella(),
                     _crearIconoEstrella(),
                     SizedBox(
-                      width: 20.0,
+                      width: 10.0,
                     ),
                   ],
                 ),
@@ -128,40 +130,38 @@ class _DetallePageState extends State<DetallePage> {
       child: Container(
         padding: EdgeInsets.all(8.0),
         color: Colors.blue[300],
-        child: Text('MAIN DISH'),
+        child: Text('MAIN DISH' , style: TextStyle(color: Colors.grey[300]),),
       ),
     );
   }
 
-  Widget _showTags() {
+  Widget _showTags(BuildContext context, List<String> tags) {
     return Wrap(
       direction: Axis.horizontal,
       alignment: WrapAlignment.start,
       spacing: 0.0,
       runSpacing: 5.0,
       children: [
-        _crearTag(),
-        _crearTag(),
-        _crearTag(),
-        _crearTag(),
-        _crearTag(),
-        _crearTag(),
-        _crearTag(),
-        _crearTag(),
+       
       ],
     );
   }
 
   Widget _showHour() {
+    final formatHourStar = DateFormat.jm().format(comida.dateStart);
+    final formatHourEnd = DateFormat.jm().format(comida.dateEnd);    
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
       child: Row(children: [
         Icon(Icons.access_time, color: Colors.grey[300], size: 30.0),
+        SizedBox(
+          width: 10.0,
+        ),
         Column(
           children: [
             Text(
-              '${comida.dateStart.hour.toString()}- ${comida.dateEnd.hour.toString()}',
-              style: TextStyle(fontSize: 16.0, color: Colors.grey[300]),
+              '$formatHourStar - $formatHourEnd ',
+              style: styleBody, textAlign: TextAlign.right,
             ),
             Text(
               'Served during breakfast hours only',
@@ -172,24 +172,27 @@ class _DetallePageState extends State<DetallePage> {
       ]),
     );
   }
- Widget _createSuggestion(BuildContext context, List<dynamic> suggestions) {
-   if(suggestions!=null)
-   {
-     return GridView.builder(
+
+  Widget _createSuggestion(BuildContext context, List<Suggestion> suggestions) {
+    if (suggestions != null) {
+      return Column(
+        children: [
+          GridView.builder(
             itemCount: suggestions.length,
             gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               childAspectRatio: 1,
             ),
             itemBuilder: (context, i) => _create(context, suggestions[i]),
-          );
-   }
-   else{
-     return CircularProgressIndicator();
-   }      
+          ),
+        ],
+      );
+    } else {
+      return CircularProgressIndicator();
+    }
   }
 
-  Widget _create(BuildContext context,Suggestion suggestion){
+  Column _create(BuildContext context, Suggestion suggestion) {
     final screensize = MediaQuery.of(context).size;
 
     return Column(
@@ -200,7 +203,7 @@ class _DetallePageState extends State<DetallePage> {
             margin: EdgeInsets.all(screensize.width * 0.05),
             child: Column(
               children: [
-                (comida.imageUrl == null)
+                (suggestion.imageUrl == null)
                     ? Image(image: AssetImage('assets/no-image.png'))
                     : ClipRRect(
                         borderRadius: BorderRadius.circular(20.0),
@@ -217,9 +220,18 @@ class _DetallePageState extends State<DetallePage> {
             ),
           ),
           onTap: () =>
-              Navigator.pushNamed(context, 'detalle', arguments: comida),
+              Navigator.pushNamed(context, 'detalle', arguments: suggestion),
         ),
       ],
+    );
+  }
+
+  Widget _isNew(BuildContext context, ComidaModel comida) {
+    return SwitchListTile(
+      title: Text('New', style: styleBody),
+      value: comida.comidaModelNew,
+      activeColor: Colors.blue,
+      onChanged: (value) => setState(() {}),
     );
   }
 }
